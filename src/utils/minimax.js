@@ -129,13 +129,13 @@ const evaluatePosition = (squares, player) => {
   for (let i = 0; i < squares.length; i++) {
     if (squares[i] === player) {
       for (const { dx, dy } of directions) {
-        const { count, blocked, openEnds } = countInDirection(i, dx, dy);
+        const { count, openEnds } = countInDirection(i, dx, dy);
         
         // Tính điểm dựa trên số quân liên tiếp và số đầu bị chặn
         if (count >= 5) {
-          score += 10000000; // Thắng
+          score += 1000000; // Thắng
         } else if (count === 4) {
-          if (openEnds === 2) score += 500000; // 4 quân 2 đầu mở
+          if (openEnds === 2) score += 50000; // 4 quân 2 đầu mở
           else if (openEnds === 1) score += 10000; // 4 quân 1 đầu mở
         } else if (count === 3) {
           if (openEnds === 2) score += 5000; // 3 quân 2 đầu mở
@@ -163,7 +163,7 @@ const evaluatePosition = (squares, player) => {
         
         // Chặn nước đi nguy hiểm của đối thủ
         if (count >= 4) {
-          score -= 9000;
+          score -= 90000;
         } else if (count === 3 && openEnds === 2) {
           score -= 8000;
         } else if (count === 3 && openEnds === 1) {
