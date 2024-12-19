@@ -163,13 +163,13 @@ const evaluatePosition = (squares, player) => {
         
         // Chặn nước đi nguy hiểm của đối thủ
         if (count >= 4) {
-          score -= 9000000;
+          score -= 9000;
         } else if (count === 3 && openEnds === 2) {
-          score -= 800000;
+          score -= 8000;
         } else if (count === 3 && openEnds === 1) {
-          score -= 300000;
+          score -= 3000;
         } else if (count === 2 && openEnds === 2) {
-          score -= 100000;
+          score -= 1000;
         }
       }
     }
