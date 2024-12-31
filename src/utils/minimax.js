@@ -61,116 +61,77 @@ const calculateWinner = (squares) => {
 
 const evaluatePosition = (squares, player) => {
   const size = 15;
+  const opponent = player === 'O' ? 'X' : 'O';
   let score = 0;
-  
-  // Hàm đếm số quân liên tiếp và số đầu bị chặn
-  const countInDirection = (index, dx, dy) => {
+
+  // Hằng số điểm
+  const ATTACK_SCORES = new Map([
+    [5, 100000],    // Thắng
+    [4, 10000],     // 4 quân
+    [3, 5000],      // 3 quân
+    [2, 1000],      // 2 quân
+    [1, 100]        // 1 quân
+  ]);
+
+  const DEFENSE_SCORES = new Map([
+    [5, 90000000],  // Phải chặn ngay
+    [4, 50000000],  // Rất nguy hiểm
+    [3, 10000000],  // Nguy hiểm
+    [2, 5000000],   // Cần chú ý
+    [1, 1000000]    // Ít nguy hiểm
+  ]);
+
+  // Hàm đếm quân liên tiếp và kiểm tra 2 đầu giữ nguyên
+  const countInLine = (startIndex, dx, dy, target) => {
     let count = 1;
-    let blocked = 0;
-    let x = index % size;
-    let y = Math.floor(index / size);
-    let openEnds = 2;
+    let openEnds = 0;
+    let x = startIndex % size;
+    let y = Math.floor(startIndex / size);
     
-    // Kiểm tra một hướng
-    for (let i = 1; i < 5; i++) {
-      const newX = x + dx * i;
-      const newY = y + dy * i;
-      if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-        blocked++;
-        openEnds--;
-        break;
-      }
-      const newIndex = newY * size + newX;
-      if (squares[newIndex] === squares[index]) {
-        count++;
-      } else if (squares[newIndex] !== null) {
-        blocked++;
-        openEnds--;
-        break;
-      } else {
-        break;
-      }
+    // Kiểm tra đầu trước và sau
+    let frontX = x + dx * count;
+    let frontY = y + dy * count;
+    let backX = x - dx;
+    let backY = y - dy;
+
+    if (frontX >= 0 && frontX < size && frontY >= 0 && frontY < size) {
+      if (squares[frontY * size + frontX] === null) openEnds++;
     }
-    
-    // Kiểm tra hướng ngược lại
-    x = index % size;
-    y = Math.floor(index / size);
-    for (let i = 1; i < 5; i++) {
-      const newX = x - dx * i;
-      const newY = y - dy * i;
-      if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-        blocked++;
-        openEnds--;
-        break;
-      }
-      const newIndex = newY * size + newX;
-      if (squares[newIndex] === squares[index]) {
-        count++;
-      } else if (squares[newIndex] !== null) {
-        blocked++;
-        openEnds--;
-        break;
-      } else {
-        break;
-      }
+    if (backX >= 0 && backX < size && backY >= 0 && backY < size) {
+      if (squares[backY * size + backX] === null) openEnds++;
     }
-    
-    return { count, blocked, openEnds };
+
+    // Đếm quân liên tiếp
+    while (count < 5) {
+      x += dx;
+      y += dy;
+      if (x < 0 || x >= size || y < 0 || y >= size) break;
+      if (squares[y * size + x] !== target) break;
+      count++;
+    }
+
+    return { count, openEnds };
   };
 
-  const directions = [
-    { dx: 1, dy: 0 },  // ngang
-    { dx: 0, dy: 1 },  // dọc
-    { dx: 1, dy: 1 },  // chéo chính
-    { dx: 1, dy: -1 }, // chéo phụ
-  ];
-
-  // Đánh giá điểm cho mỗi vị trí
+  // Kiểm tra toàn bộ bàn cờ
   for (let i = 0; i < squares.length; i++) {
-    if (squares[i] === player) {
-      for (const { dx, dy } of directions) {
-        const { count, openEnds } = countInDirection(i, dx, dy);
-        
-        // Tính điểm dựa trên số quân liên tiếp và số đầu bị chặn
-        if (count >= 5) {
-          score += 1000000; // Thắng
-        } else if (count === 4) {
-          if (openEnds === 2) score += 50000; // 4 quân 2 đầu mở
-          else if (openEnds === 1) score += 10000; // 4 quân 1 đầu mở
-        } else if (count === 3) {
-          if (openEnds === 2) score += 5000; // 3 quân 2 đầu mở
-          else if (openEnds === 1) score += 1000; // 3 quân 1 đầu mở
-        } else if (count === 2) {
-          if (openEnds === 2) score += 500; // 2 quân 2 đầu mở
-          else if (openEnds === 1) score += 100; // 2 quân 1 đầu mở
-        }
+    if (!squares[i]) continue;
+
+    const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+
+    for (const [dx, dy] of directions) {
+      // Kiểm tra quân địch (X)
+      if (squares[i] === 'X') {
+        const { count, openEnds } = countInLine(i, dx, dy, 'X');
+        const defenseScore = DEFENSE_SCORES.get(count) || 0;
+        score -= defenseScore * (openEnds + 1); // Tăng điểm phòng thủ theo số đầu mở
       }
-
-      // Thêm điểm cho vị trí trung tâm
-      const x = i % size;
-      const y = Math.floor(i / size);
-      const centerDistance = Math.abs(x - 7) + Math.abs(y - 7);
-      score += (14 - centerDistance) * 5;
-    }
-  }
-
-  // Đánh giá phòng thủ
-  const opponent = player === 'O' ? 'X' : 'O';
-  for (let i = 0; i < squares.length; i++) {
-    if (squares[i] === opponent) {
-      for (const { dx, dy } of directions) {
-        const { count, openEnds } = countInDirection(i, dx, dy);
-        
-        // Chặn nước đi nguy hiểm của đối thủ
-        if (count >= 4) {
-          score -= 90000;
-        } else if (count === 3 && openEnds === 2) {
-          score -= 8000;
-        } else if (count === 3 && openEnds === 1) {
-          score -= 3000;
-        } else if (count === 2 && openEnds === 2) {
-          score -= 1000;
-        }
+      
+      // Kiểm tra quân ta (O)
+      if (squares[i] === 'O') {
+        const { count, openEnds } = countInLine(i, dx, dy, 'O');
+        const attackScore = ATTACK_SCORES.get(count) || 0;
+        score += attackScore * (openEnds + 1); // Tăng điểm tấn công theo số đầu mở
       }
     }
   }
@@ -178,18 +139,44 @@ const evaluatePosition = (squares, player) => {
   return score;
 };
 
+const findBestMoves = (squares) => {
+  const size = 15;
+  const moves = new Set();
+
+  // Tìm các vị trí ưu tiên cao
+  for (let i = 0; i < squares.length; i++) {
+    if (squares[i]) {
+      const x = i % size;
+      const y = Math.floor(i / size);
+      
+      // Xem xét vùng 3x3 xung quanh mỗi quân
+      for (let dx = -2; dx <= 2; dx++) {
+        for (let dy = -2; dy <= 2; dy++) {
+          const newX = x + dx;
+          const newY = y + dy;
+          if (newX >= 0 && newX < size && newY >= 0 && newY < size) {
+            const index = newY * size + newX;
+            if (!squares[index]) {
+              moves.add(index);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return Array.from(moves);
+};
+
 const minimax = (squares, depth, alpha, beta, isMaximizing) => {
   const winner = calculateWinner(squares);
-  if (winner === 'O') return 1000000;
-  if (winner === 'X') return -1000000;
-  if (depth === 0) {
-    return evaluatePosition(squares, isMaximizing ? 'O' : 'X');
-  }
+  if (winner === 'O') return 1000000000;
+  if (winner === 'X') return -1000000000;
+  if (depth === 0) return evaluatePosition(squares, isMaximizing ? 'O' : 'X');
 
-  const moves = findBestMoves(squares);
-  
   if (isMaximizing) {
     let bestScore = -Infinity;
+    const moves = findBestMoves(squares);
     for (const move of moves) {
       if (!squares[move]) {
         squares[move] = 'O';
@@ -197,12 +184,13 @@ const minimax = (squares, depth, alpha, beta, isMaximizing) => {
         squares[move] = null;
         bestScore = Math.max(score, bestScore);
         alpha = Math.max(alpha, score);
-        if (beta <= alpha) break;
+        if (beta <= alpha) break; // Alpha-beta pruning
       }
     }
     return bestScore;
   } else {
     let bestScore = Infinity;
+    const moves = findBestMoves(squares);
     for (const move of moves) {
       if (!squares[move]) {
         squares[move] = 'X';
@@ -210,108 +198,11 @@ const minimax = (squares, depth, alpha, beta, isMaximizing) => {
         squares[move] = null;
         bestScore = Math.min(score, bestScore);
         beta = Math.min(beta, score);
-        if (beta <= alpha) break;
+        if (beta <= alpha) break; // Alpha-beta pruning
       }
     }
     return bestScore;
   }
-};
-
-const findBestMoves = (squares) => {
-  const size = 15;
-  const moves = new Set();
-  let hasExistingMoves = false;
-  
-  // Tìm các ô đã đánh
-  for (let i = 0; i < squares.length; i++) {
-    if (squares[i]) {
-      hasExistingMoves = true;
-      const x = i % size;
-      const y = Math.floor(i / size);
-      
-      // Giảm phạm vi tìm kiếm xuống 1 ô
-      for (let dx = -1; dx <= 1; dx++) {
-        for (let dy = -1; dy <= 1; dy++) {
-          const newX = x + dx;
-          const newY = y + dy;
-          const newIndex = newY * size + newX;
-          
-          if (newX >= 0 && newX < size && 
-              newY >= 0 && newY < size && 
-              !squares[newIndex]) {
-            moves.add(newIndex);
-          }
-        }
-      }
-    }
-  }
-
-  // Giới hạn số lượng nước đi xem xét
-  const moveArray = Array.from(moves);
-  if (moveArray.length > 6) {
-    // Đánh giá nhanh các nước đi tiềm năng
-    const scoredMoves = moveArray.map(move => {
-      squares[move] = 'O';
-      const quickScore = evaluateQuick(squares, 'O');
-      squares[move] = null;
-      return { move, score: quickScore };
-    });
-    
-    scoredMoves.sort((a, b) => b.score - a.score);
-    return scoredMoves.slice(0, 6).map(m => m.move);
-  }
-  
-  return hasExistingMoves ? moveArray : [112];
-};
-
-// Thêm hàm đánh giá nhanh
-const evaluateQuick = (squares, player) => {
-  const size = 15;
-  let score = 0;
-  const opponent = player === 'O' ? 'X' : 'O';
-  
-  // Chỉ kiểm tra các hướng chính và pattern nguy hiểm
-  const directions = [
-    { dx: 1, dy: 0 },
-    { dx: 0, dy: 1 }
-  ];
-
-  for (let i = 0; i < squares.length; i++) {
-    if (squares[i]) {
-      const x = i % size;
-      const y = Math.floor(i / size);
-      
-      if (squares[i] === player) {
-        // Tính điểm tấn công cơ bản
-        for (const { dx, dy } of directions) {
-          let count = 1;
-          for (let step = 1; step < 5; step++) {
-            const newX = x + dx * step;
-            const newY = y + dy * step;
-            if (newX < 0 || newX >= size || newY < 0 || newY >= size) break;
-            if (squares[newY * size + newX] === player) count++;
-            else break;
-          }
-          score += Math.pow(10, count);
-        }
-      } else {
-        // Tính điểm phòng thủ cơ bản
-        for (const { dx, dy } of directions) {
-          let count = 1;
-          for (let step = 1; step < 5; step++) {
-            const newX = x + dx * step;
-            const newY = y + dy * step;
-            if (newX < 0 || newX >= size || newY < 0 || newY >= size) break;
-            if (squares[newY * size + newX] === opponent) count++;
-            else break;
-          }
-          if (count >= 3) score -= Math.pow(10, count + 1);
-        }
-      }
-    }
-  }
-  
-  return score;
 };
 
 export { calculateWinner, minimax, findBestMoves }; 

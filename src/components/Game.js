@@ -27,7 +27,7 @@ const Game = () => {
         for (const move of moves) {
           if (!aiSquares[move]) {
             aiSquares[move] = 'O';
-            const score = minimax(aiSquares, 3, -Infinity, Infinity, false);
+            const score = minimax(aiSquares, 2, -Infinity, Infinity, false);
             aiSquares[move] = null;
             
             if (score > bestScore) {
