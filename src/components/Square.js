@@ -1,7 +1,7 @@
-const Square = ({ value, onClick }) => {
+const Square = ({ value, onClick, highlight }) => {
   return (
-    <button 
-      className="square" 
+    <button
+      className={`square ${highlight ? 'highlight' : ''}`}
       onClick={onClick}
     >
       {value}
@@ -9,4 +9,4 @@ const Square = ({ value, onClick }) => {
   );
 };
 
-export default Square; 
+export default Square;

@@ -122,7 +122,10 @@ const Game = () => {
           Chơi lại
         </button>
       </div>
-      <Board squares={squares} onClick={handleClick} />
+      
+      <div>
+        <Board squares={squares} onClick={handleClick} />
+      </div>
       
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Kết thúc ván đấu</DialogTitle>

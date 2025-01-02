@@ -1,102 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
 /* Global Styles */
+* {
+  font-family: 'Quicksand', sans-serif;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(to bottom, #e4f0ff, #ffffff);
+  font-family: 'Quicksand', sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   margin: 0;
-  padding: 0;
+  padding: 20px;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
 }
 
 .app {
   text-align: center;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 1000px;
+  width: 100%;
 }
 
-/* Board Styles */
-.board {
-  display: inline-block;
-  border: 3px solid #0078d4;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.board-row {
-  display: flex;
-}
-
-.square {
-  width: 50px;
-  height: 50px;
-  border: 1px solid #ccc;
-  font-size: 18px;
-  font-weight: bold;
-  margin: 2px;
-  padding: 0;
-  text-align: center;
-  line-height: 50px;
-  border-radius: 4px;
-  transition: background 0.3s, transform 0.2s;
-  cursor: pointer;
-}
-
-.square:hover {
-  background: #d1e8ff;
-  transform: scale(1.1);
-}
-
-/* Game Info */
-.game {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+h1 {
+  color: #1e3c72;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .game-info {
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .status {
-  font-size: 20px;
+  grid-column: 1 / -1;
+  font-size: 24px;
   font-weight: bold;
-  color: #0078d4;
-  margin-bottom: 10px;
+  color: #1e3c72;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.timer, .move-count, .best-record {
-  margin: 10px 0;
-  font-size: 16px;
-  font-weight: bold;
+.board {
+  display: grid; /* Tạo lưới cố định */
+  grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); /* Mỗi ô có kích thước 45px */
+  gap: 6px; /* Khoảng cách giữa các ô */
 }
 
-.timer {
-  color: #e74c3c;
+.square {
+  width: 45px;
+  height: 45px;
+  margin: 3px;
+  border: 2px solid #e3e3e3;
+  border-radius: 8px;
+  background: white;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3c72;
+  
 }
 
-.best-record {
-  color: #27ae60;
+.square:hover {
+  background: #f0f7ff;
+  border-color: #1e3c72;
+  
 }
 
-/* Reset Button */
 .reset-button {
-  padding: 10px 25px;
+  padding: 12px 30px;
   font-size: 16px;
-  background: linear-gradient(to right, #4caf50, #45a049);
+  font-weight: 600;
   color: white;
+  background: linear-gradient(45deg, #1e3c72, #2a5298);
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .reset-button:hover {
-  background: linear-gradient(to right, #45a049, #4caf50);
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Dialog styles */
+.MuiDialog-paper {
+  border-radius: 20px !important;
+  padding: 20px !important;
+}
+
+.MuiDialogTitle-root {
+  background: linear-gradient(45deg, #1e3c72, #2a5298);
+  color: white !important;
+  text-align: center;
+  padding: 20px !important;
+}
+
+.MuiDialogContent-root {
+  padding: 30px !important;
+  font-size: 18px !important;
+  text-align: center;
+}
+
+.MuiButton-root {
+  background: linear-gradient(45deg, #1e3c72, #2a5298) !important;
+  color: white !important;
+  padding: 10px 30px !important;
+  border-radius: 25px !important;
 }
